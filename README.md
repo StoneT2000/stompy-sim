@@ -6,7 +6,7 @@ Repo for simulating the Stompy robot from K-Scale Labs (and potentially others) 
 
 Recommended to use conda/mamba to setup
 
-```
+```bash
 conda create -n "stompy-sim" "python==3.11"
 pip install -e .
 # install a version of torch that is compatible with your system
