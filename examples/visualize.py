@@ -8,14 +8,17 @@ def main(args):
                    obs_mode=args.obs_mode, 
                    control_mode="pd_joint_delta_pos", 
                    render_mode="rgb_array", 
-                   shader_dir=args.shader)
-    env = RecordEpisode(env, output_dir=args.record_dir, save_trajectory=True, save_video=True, trajectory_name="trajectory")
-    env.reset()
+                   shader_dir=args.shader,
+                   sim_backend="gpu"
+                   )
+    # auto record videos to disk with the wrapper below
+    # env = RecordEpisode(env, output_dir=args.record_dir, save_trajectory=True, save_video=True, trajectory_name="trajectory")
+    env.reset(seed=0)
     viewer=env.render_human()
     viewer.paused = True
     print("Simulation is paused, unpause on the top left.")
     env.render_human()
-    for _ in range(100):
+    for _ in range(10000):
         action = env.action_space.sample()
         # action[:-4] = 0#env.unwrapped.agent.robot.qpos[0, :-4]
         # action[:] = 0

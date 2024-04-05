@@ -10,7 +10,7 @@ from mani_skill.sensors.camera import CameraConfig
 from mani_skill.utils import common, sapien_utils
 from mani_skill.utils.building import ground
 from mani_skill.utils.registration import register_env
-from mani_skill.utils.structs.types import SimConfig, SceneConfig
+from mani_skill.utils.structs.types import SimConfig, SceneConfig, GPUMemoryConfig
 
 
 @register_env("Stand-v0", max_episode_steps=100)
@@ -24,7 +24,13 @@ class StandEnv(BaseEnv):
 
     @property
     def _default_sim_cfg(self):
-        return SimConfig(scene_cfg=SceneConfig(solver_iterations=4, solver_velocity_iterations=0))
+        return SimConfig(
+            sim_freq=120, 
+            control_freq=60,
+            gpu_memory_cfg=GPUMemoryConfig(max_rigid_contact_count=2**21, max_rigid_patch_count=2**19),
+            # scene configs copied form Isaac humanoid sim configs
+            scene_cfg=SceneConfig(solver_iterations=4, solver_velocity_iterations=0, bounce_threshold=0.2)
+        )
 
     @property
     def _sensor_configs(self):
