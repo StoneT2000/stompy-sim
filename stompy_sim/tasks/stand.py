@@ -10,10 +10,10 @@ from mani_skill.sensors.camera import CameraConfig
 from mani_skill.utils import common, sapien_utils
 from mani_skill.utils.building import ground
 from mani_skill.utils.registration import register_env
-from mani_skill.utils.structs.types import SimConfig
+from mani_skill.utils.structs.types import SimConfig, SceneConfig
 
 
-@register_env("Stand-v0", max_episode_steps=200)
+@register_env("Stand-v0", max_episode_steps=100)
 class StandEnv(BaseEnv):
 
     SUPPORTED_ROBOTS = ["stompy"]
@@ -24,11 +24,11 @@ class StandEnv(BaseEnv):
 
     @property
     def _default_sim_cfg(self):
-        return SimConfig()
+        return SimConfig(scene_cfg=SceneConfig(solver_iterations=4, solver_velocity_iterations=0))
 
     @property
     def _sensor_configs(self):
-        pose = sapien_utils.look_at(eye=[1, 1, 0.6], target=[0, 0, 0.2])
+        pose = sapien_utils.look_at(eye=[1, -1, 1.25], target=[0, 0, 0.7])
         return [CameraConfig("base_camera", pose, 128, 128, np.pi / 2, 0.01, 100)]
 
     @property
