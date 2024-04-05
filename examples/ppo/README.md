@@ -1,3 +1,3 @@
-# PPO Baseline
+# PPO Baseline (wip)
 
 Quick experimentation running PPO to control some humanoids in GPU sim
