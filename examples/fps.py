@@ -9,6 +9,7 @@ import torch
 import tqdm
 
 import stompy_sim.tasks
+import mani_skill.envs.tasks
 from mani_skill.vector.wrappers.gymnasium import ManiSkillVectorEnv
 from mani_skill.examples.benchmarking.profiling import Profiler
 from mani_skill.utils.visualization.misc import images_to_video, tile_images

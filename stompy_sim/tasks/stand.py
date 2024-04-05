@@ -11,8 +11,8 @@ from mani_skill.utils import common, sapien_utils
 from mani_skill.utils.building import ground
 from mani_skill.utils.registration import register_env
 from mani_skill.utils.structs.types import SimConfig, SceneConfig, GPUMemoryConfig
-
-
+from mani_skill.utils.scene_builder.table import TableSceneBuilder
+from mani_skill.utils.structs import Pose
 @register_env("Stand-v0", max_episode_steps=100)
 class StandEnv(BaseEnv):
 
@@ -44,9 +44,27 @@ class StandEnv(BaseEnv):
 
     def _load_scene(self, options: dict):
         self.ground = ground.build_ground(self._scene)
+        # self.table_scene = TableSceneBuilder(self)
+        # self.table_scene.build()
+        builder = self._scene.create_actor_builder()
+        builder.add_box_collision(half_size=(0.1, 0.1, 0.8), )
+        builder.add_box_visual(half_size=(0.1, 0.1, 0.8), material=sapien.render.RenderMaterial(base_color=[0.2, 0.3, 0.8, 1]))
+        self.box1 = builder.build_kinematic(name="box1")
+
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
-        self.agent.robot.set_pose(sapien.Pose(p=[0, 0, 1]))
-        self.agent.robot.set_qpos(self.agent.init_standing_qpos)
+        with torch.device(self.device):
+            b = len(env_idx) # number of envs resetting
+            # self.table_scene.initialize(env_idx)
+            self.agent.robot.set_pose(sapien.Pose(p=[0, 0, 1])) # place robot base pose at 1 meter high (z-axis)
+            self.agent.robot.set_qpos(self.agent.init_standing_qpos)
+
+            # randomize the box xy pos for fun
+            xyz = torch.zeros((b, 3))
+            xyz[:, 2] = 0.4
+            xyz[:, 1] = -1.5
+            xyz[:, 0] = torch.rand((b)) * 0.5 - 0.25
+            self.box1.set_pose(Pose.create_from_pq(p=xyz))
+
     def evaluate(self):
         return {
             "success": torch.zeros(self.num_envs, device=self.device, dtype=bool),

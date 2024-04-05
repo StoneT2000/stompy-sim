@@ -1,9 +1,12 @@
 import os.path as osp
+import numpy as np
+import sapien
 from mani_skill.utils import sapien_utils
 from mani_skill.agents.base_agent import BaseAgent
 from mani_skill.agents.controllers import *
 from mani_skill.sensors.camera import CameraConfig
 from mani_skill.agents.registration import register_agent
+from transforms3d import euler
 import torch
 @register_agent()
 class Stompy(BaseAgent):
@@ -30,7 +33,7 @@ class Stompy(BaseAgent):
     @property
     def init_standing_qpos(self):
         return torch.Tensor([
-            [1.5, -1.5, -0.942, 0, 1.5, -1.5, -0.25, 0.25, 0, 0.65, -0.65, -0.5, -0.5, 0, 0, -.5, .5, 0.78, -0.78, 0.25, -0.25, 0, -0.4, 0, 0.4, 0, 0, -0.2, 0.2, 0.2, -2.2, 0, 0, 0, 0, 0, 0]
+            [1.5, -1.5, -0.942, 0, 1.5, -1.5, -0.25, 0.25, 0.5, 0.65, -0.65, -0.5, -0.5, 0, 0, -.5, .5, 0.78, -0.78, 0.25, -0.25, 0, -0.4, 0, 0.4, 0, 0, -0.2, 0.2, 0.2, -2.2, 0, 0, 0, 0, 0, 0]
         ])
 
     @property
@@ -64,29 +67,28 @@ class Stompy(BaseAgent):
         )
         return dict(
             pd_joint_delta_pos=dict(
-                arm=arm_pd_joint_delta_pos, grippers=gripper_pd_joint_pos
+                arm=arm_pd_joint_delta_pos, grippers=gripper_pd_joint_pos, balance_passive_force=False,
             ),
             pd_joint_pos=dict(
-                arm=arm_pd_joint_pos, grippers=gripper_pd_joint_pos
+                arm=arm_pd_joint_pos, grippers=gripper_pd_joint_pos, balance_passive_force=False,
             )
         )
 
     @property
-    def sensor_configs(self):
-        return []
-        # return [
-        #     CameraConfig(
-        #         uid="your_custom_camera_on_this_robot",
-        #         p=[0.0464982, -0.0200011, 0.0360011],
-        #         q=[0, 0.70710678, 0, 0.70710678],
-        #         width=128,
-        #         height=128,
-        #         fov=1.57,
-        #         near=0.01,
-        #         far=100,
-        #         entity_uid="your_mounted_camera",
-        #     )
-        # ]
+    def _sensor_configs(self):
+        return [
+            CameraConfig(
+                uid="head_camera",
+                pose=sapien.Pose(p=[0.12, 0, 0.02], q=euler.euler2quat(-np.pi/2, 0, 0)),
+                width=128,
+                height=128,
+                fov=1.57,
+                near=0.01,
+                far=100,
+                # intrinsic = , # you can specify an intrinsic matrix directly here instead of defining the ther values
+                entity_uid="link_head_1_head_1", # mount cameras relative to existing link IDs as so
+            )
+        ]
 
     def _after_init(self):
         pass
